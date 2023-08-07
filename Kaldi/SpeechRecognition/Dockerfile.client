@@ -11,9 +11,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG TRITONSERVER_IMAGE=nvcr.io/nvidia/tritonserver:21.05-py3
-ARG KALDI_IMAGE=nvcr.io/nvidia/kaldi:21.08-py3
-ARG PYTHON_VER=3.8
+ARG TRITONSERVER_IMAGE=nvcr.io/nvidia/tritonserver:23.07-py3
+ARG KALDI_IMAGE=nvcr.io/nvidia/kaldi:23.07-py3
+ARG PYTHON_VER=3
 
 
 #

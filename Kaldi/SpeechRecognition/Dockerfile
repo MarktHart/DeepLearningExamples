@@ -11,9 +11,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG TRITONSERVER_IMAGE=nvcr.io/nvidia/tritonserver:21.05-py3
-ARG KALDI_IMAGE=nvcr.io/nvidia/kaldi:21.08-py3
-ARG PYTHON_VER=3.8
+ARG TRITONSERVER_IMAGE=nvcr.io/nvidia/tritonserver:23.07-py3
+ARG KALDI_IMAGE=nvcr.io/nvidia/kaldi:23.07-py3
+ARG PYTHON_VER=3
 
 #
 # Kaldi shared library dependencies
@@ -43,6 +43,7 @@ RUN set -eux; \
         subversion \
         unzip \
         bc \
+        rapidjson-dev \
         libatlas-base-dev \
         gfortran \
         zlib1g-dev; \
@@ -105,11 +106,12 @@ RUN set -eux; \
 COPY --from=kaldi /opt/kaldi /opt/kaldi
 
 # Add Kaldi custom backend shared library and scripts
+COPY model-repo /workspace/model-repo
 COPY --from=backend-build /workspace/triton-kaldi-backend/install/backends/kaldi/libtriton_kaldi.so /workspace/model-repo/kaldi_online/1/
 COPY scripts /workspace/scripts
 
 # Setup entrypoint and environment
-ENV LD_LIBRARY_PATH /opt/kaldi/src/lib/:/opt/tritonserver/lib:$LD_LIBRARY_PATH
+ENV LD_LIBRARY_PATH /opt/kaldi/src/lib/:/opt/tritonserver/lib:/usr/local/cuda-12.1/compat/lib.real/:$LD_LIBRARY_PATH
 COPY scripts/nvidia_kaldi_triton_entrypoint.sh /opt/triton-kaldi/
 VOLUME /mnt/model-repo
 ENTRYPOINT ["/opt/triton-kaldi/nvidia_kaldi_triton_entrypoint.sh"]
