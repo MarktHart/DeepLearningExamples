@@ -13,7 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-NV_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES:-"0"}
+NV_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES:-"1"}
+TRITON_TAG=$(date -d "$(date +%Y-%m-1) -1 month" +%y.%m)
 
 # Start Triton server 
 docker run --rm -it \
@@ -26,5 +27,4 @@ docker run --rm -it \
    -p8002:8002 \
    --name trt_server_asr \
    -v $PWD/data:/data \
-   -v $PWD/model-repo:/mnt/model-repo \
-   triton_kaldi_server
+   triton_kaldi_server:$TRITON_TAG

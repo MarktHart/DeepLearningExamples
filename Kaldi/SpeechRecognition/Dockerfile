@@ -11,8 +11,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG TRITONSERVER_IMAGE=nvcr.io/nvidia/tritonserver:23.07-py3
-ARG KALDI_IMAGE=nvcr.io/nvidia/kaldi:23.07-py3
+ARG TRITON_TAG=24.05
+ARG KALDI_TAG=23.11
+ARG TRITONSERVER_IMAGE=nvcr.io/nvidia/tritonserver:${TRITON_TAG}-py3
+ARG KALDI_IMAGE=nvcr.io/nvidia/kaldi:${KALDI_TAG}-py3
 ARG PYTHON_VER=3
 
 #
@@ -64,12 +66,16 @@ RUN set -eux; \
 # Kaldi custom backend build
 #
 FROM builder as backend-build
+ARG TRITON_TAG
+
+# Copy the external_git repo's
+COPY external /workspace/external
 
 # Build the custom backend
 COPY kaldi-asr-backend /workspace/triton-kaldi-backend
 RUN set -eux; \
     cd /workspace/triton-kaldi-backend; \
-    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$(pwd)/install" \
+    cmake -DCMAKE_BUILD_TYPE=Release -DFETCHCONTENT_FULLY_DISCONNECTED=ON -DTRITON_TAG=$TRITON_TAG -DCMAKE_INSTALL_PREFIX="$(pwd)/install" \
         -B build .; \
     cmake --build build --parallel; \
     cmake --install build

@@ -15,8 +15,10 @@
 
 set -eu
 
+TRITON_TAG=$(date -d "$(date +%Y-%m-1) -1 month" +%y.%m) # latest available build tag is year + last month. E.g. "24.05"
+
 # Use development branch of Kaldi for latest feature support
-docker build . -f Dockerfile \
-    --rm -t triton_kaldi_server
-docker build . -f Dockerfile.client \
-    --rm -t triton_kaldi_client
+docker build --build-arg TRITON_TAG=$TRITON_TAG . -f Dockerfile \
+    --rm -t triton_kaldi_server:$TRITON_TAG
+docker build --build-arg TRITON_TAG=$TRITON_TAG . -f Dockerfile.client \
+    --rm -t triton_kaldi_client:$TRITON_TAG

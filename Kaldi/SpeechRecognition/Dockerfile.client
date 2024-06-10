@@ -11,8 +11,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG TRITONSERVER_IMAGE=nvcr.io/nvidia/tritonserver:23.07-py3
-ARG KALDI_IMAGE=nvcr.io/nvidia/kaldi:23.07-py3
+ARG TRITON_TAG=24.05
+ARG KALDI_TAG=23.11
+ARG TRITONSERVER_IMAGE=nvcr.io/nvidia/tritonserver:${TRITON_TAG}-py3
+ARG KALDI_IMAGE=nvcr.io/nvidia/kaldi:${KALDI_TAG}-py3
 ARG PYTHON_VER=3
 
 
@@ -45,6 +47,7 @@ RUN set -eux; \
         subversion \
         unzip \
         bc \
+        rapidjson-dev \
         libatlas-base-dev \
         gfortran \
         zlib1g-dev; \
@@ -66,13 +69,15 @@ RUN set -eux; \
 #
 FROM builder as client-build
 
+ARG TRITON_TAG
+
 # Build the clients
 COPY kaldi-asr-client /workspace/triton-client
 RUN set -eux; \
     cd /workspace; \
-    echo 'add_subdirectory(../../../triton-client src/c++/triton-client)' \
+    echo 'add_subdirectory(/workspace/triton-client src/c++/triton-client)' \
         >> /workspace/client/src/c++/CMakeLists.txt; \
-    cmake -DCMAKE_BUILD_TYPE=Release -B build client; \
+    cmake -DCMAKE_BUILD_TYPE=Release -DTRITON_ENABLE_CC_GRPC=ON -DTRITON_TAG=$TRITON_TAG -B build client; \
     cmake --build build --parallel --target cc-clients
 
 
@@ -111,6 +116,6 @@ COPY --from=client-build /workspace/build/cc-clients/src/c++/triton-client/kaldi
 COPY scripts /workspace/scripts
 
 # Setup environment and entrypoint
-ENV LD_LIBRARY_PATH /opt/kaldi/src/lib/:/opt/tritonserver/lib:$LD_LIBRARY_PATH
+ENV LD_LIBRARY_PATH /opt/kaldi/src/lib/:/opt/tritonserver/lib:/usr/local/cuda-12.1/compat/lib.real/:$LD_LIBRARY_PATH
 VOLUME /mnt/model-repo
 ENTRYPOINT ["/usr/local/bin/kaldi-asr-parallel-client"]

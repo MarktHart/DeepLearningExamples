@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+TRITON_TAG=$(date -d "$(date +%Y-%m-1) -1 month" +%y.%m)
+
 docker run --rm -it \
     --net=host \
     --shm-size=1g \
@@ -20,4 +22,4 @@ docker run --rm -it \
     --ulimit stack=67108864 \
     -v $PWD/data:/data \
     --entrypoint /bin/bash \
-    triton_kaldi_client /workspace/scripts/docker/run_client.sh $@
+    triton_kaldi_client:$TRITON_TAG /workspace/scripts/docker/run_client.sh $@

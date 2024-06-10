@@ -14,11 +14,14 @@
 # limitations under the License.
 
 # Start Triton server container for download - need some kaldi tools
+
+TRITON_TAG=$(date -d "$(date +%Y-%m-1) -1 month" +%y.%m)
+
 docker run --rm \
    --shm-size=1g \
    --ulimit memlock=-1 \
    --ulimit stack=67108864 \
    -v $PWD/data:/mnt/data \
-   triton_kaldi_server /workspace/scripts/docker/dataset_setup.sh $(id -u) $(id -g)
+   triton_kaldi_server::$TRITON_TAG /workspace/scripts/docker/dataset_setup.sh $(id -u) $(id -g)
 
 #   --user $(id -u):$(id -g) \

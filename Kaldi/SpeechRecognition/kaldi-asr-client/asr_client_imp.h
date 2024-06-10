@@ -22,8 +22,8 @@
 #ifndef TRITON_KALDI_ASR_CLIENT_H_
 #define TRITON_KALDI_ASR_CLIENT_H_
 
-namespace ni = nvidia::inferenceserver;
-namespace nic = nvidia::inferenceserver::client;
+namespace ni = triton;
+namespace nic = triton::client;
 
 // time with arbitrary reference
 double inline gettime_monotonic() {
